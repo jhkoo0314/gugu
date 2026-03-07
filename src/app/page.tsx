@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useState } from "react";
+import { Suspense, useEffect, useEffectEvent, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { QuizScreen } from "@/components/QuizScreen";
 import { ResultScreen } from "@/components/ResultScreen";
@@ -64,7 +64,7 @@ function parseWrongNoteIds(value: string | null): string[] {
     .filter(Boolean);
 }
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const requestedDan = parseDanParam(searchParams.get("dan"));
   const requestedWrongNoteIds = parseWrongNoteIds(searchParams.get("wrongNoteIds"));
@@ -471,5 +471,13 @@ export default function Home() {
       onRetryWrongAnswers={handleRetryWrongAnswers}
       onGoHome={handleGoHome}
     />
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }

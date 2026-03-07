@@ -48,6 +48,7 @@ export function saveWrongNoteItem(questionResult: QuestionResult): WrongNoteItem
     return loadWrongNotes();
   }
 
+  const wrongReason: WrongNoteItem["reason"] = questionResult.reason;
   const wrongNotes = loadWrongNotes();
   const itemId = createWrongNoteId(questionResult.multiplicand, questionResult.multiplier);
   const existingItem = wrongNotes.find((item) => item.id === itemId);
@@ -61,7 +62,7 @@ export function saveWrongNoteItem(questionResult: QuestionResult): WrongNoteItem
         multiplier: questionResult.multiplier,
         correctAnswer: questionResult.correctAnswer,
         lastUserAnswer: questionResult.userAnswer,
-        reason: questionResult.reason,
+        reason: wrongReason,
         wrongCount: 1,
         resolvedCount: 0,
         isMastered: false,
@@ -77,7 +78,7 @@ export function saveWrongNoteItem(questionResult: QuestionResult): WrongNoteItem
       ? {
           ...item,
           lastUserAnswer: questionResult.userAnswer,
-          reason: questionResult.reason,
+          reason: wrongReason,
           wrongCount: item.wrongCount + 1,
           isMastered: false,
           lastWrongAt: questionResult.answeredAt
