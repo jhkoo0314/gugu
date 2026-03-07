@@ -1,4 +1,6 @@
-import type { AnswerMode, DanOption, StudyRecord, WrongAnswer } from "@/types/quiz";
+import Link from "next/link";
+import { RecentBadgeBanner } from "@/components/RecentBadgeBanner";
+import type { AnswerMode, Badge, DanOption, StudyRecord, WrongAnswer } from "@/types/quiz";
 
 type ResultScreenProps = {
   score: number;
@@ -6,10 +8,12 @@ type ResultScreenProps = {
   wrongAnswers: WrongAnswer[];
   accuracy: number;
   isRetryMode: boolean;
+  isWrongNoteMode: boolean;
   answerMode: AnswerMode;
   bestStreak: number;
   isTimerMode: boolean;
   timeoutCount: number;
+  newlyUnlockedBadges: Badge[];
   studyRecords: StudyRecord[];
   onRetryWrongAnswers: () => void;
   onGoHome: () => void;
@@ -60,10 +64,12 @@ export function ResultScreen({
   wrongAnswers,
   accuracy,
   isRetryMode,
+  isWrongNoteMode,
   answerMode,
   bestStreak,
   isTimerMode,
   timeoutCount,
+  newlyUnlockedBadges,
   studyRecords,
   onRetryWrongAnswers,
   onGoHome
@@ -77,7 +83,7 @@ export function ResultScreen({
         <div className="text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-soft-yellow)] px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)]">
             <span>반짝 결과</span>
-            <span>{isRetryMode ? "다시 풀기 완료" : "오늘의 결과"}</span>
+            <span>{isWrongNoteMode ? "오답노트 복습 완료" : isRetryMode ? "다시 풀기 완료" : "오늘의 결과"}</span>
           </div>
           <h1 className="mt-4 text-3xl font-extrabold text-[var(--color-text-primary)] sm:text-4xl">
             {resultMessage}
@@ -86,6 +92,8 @@ export function ResultScreen({
             총 {totalQuestions}문제 중 {score}문제를 맞혔어요.
           </p>
         </div>
+
+        <RecentBadgeBanner badges={newlyUnlockedBadges} />
 
         <div className="mt-8 rounded-[28px] bg-[linear-gradient(180deg,rgba(255,241,246,0.9),rgba(255,255,255,0.96))] p-5 shadow-[0_18px_50px_rgba(255,143,177,0.16)]">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -197,6 +205,13 @@ export function ResultScreen({
               오답 다시 풀기
             </button>
           ) : null}
+
+          <Link
+            href="/badges"
+            className="flex min-h-[56px] w-full items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-4 text-lg font-bold text-[var(--color-text-primary)] shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-soft-yellow)]"
+          >
+            배지 보러 가기
+          </Link>
 
           <button
             type="button"

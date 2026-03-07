@@ -1,15 +1,33 @@
 "use client";
 
 import { useEffect, useEffectEvent, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { QuizScreen } from "@/components/QuizScreen";
 import { ResultScreen } from "@/components/ResultScreen";
 import { StartScreen } from "@/components/StartScreen";
+import { evaluateSessionBadges, evaluateStartBadges, evaluateWrongNoteBadges, loadBadges, saveBadges } from "@/lib/badges";
 import { buildRetryQuestions } from "@/lib/buildRetryQuestions";
+import { buildWrongNoteQuestions } from "@/lib/buildWrongNoteQuestions";
 import { calculateAccuracy } from "@/lib/calculateAccuracy";
+import { getDanStats } from "@/lib/getDanStats";
+import { getRecommendedDans } from "@/lib/getRecommendedDans";
 import { generateQuestions } from "@/lib/generateQuestions";
+import { loadWrongNotes, markWrongNoteResolved, saveWrongNoteItem } from "@/lib/wrongNotes";
 import { playCorrectSound, playWrongSound } from "@/lib/playQuizSound";
 import { loadStudyRecords, saveStudyRecord } from "@/lib/studyRecords";
-import type { AnswerMode, DanOption, Question, Screen, StudyRecord, WrongAnswer } from "@/types/quiz";
+import type {
+  AnswerMode,
+  Badge,
+  DanStats,
+  DanOption,
+  Question,
+  QuestionResult,
+  RecommendedDan,
+  Screen,
+  StudyRecord,
+  WrongNoteItem,
+  WrongAnswer
+} from "@/types/quiz";
 
 const QUIZ_LENGTH = 10;
 const CORRECT_FEEDBACK_MESSAGES = ["정답이에요!", "잘했어요!", "멋져요!", "맞았어요!"];
@@ -29,15 +47,56 @@ function createStudyRecordId(): string {
   return `record-${Date.now()}`;
 }
 
+function parseDanParam(value: string | null): DanOption | null {
+  const parsedDan = Number(value);
+
+  return [2, 3, 4, 5, 6, 7, 8, 9].includes(parsedDan) ? (parsedDan as DanOption) : null;
+}
+
+function parseWrongNoteIds(value: string | null): string[] {
+  if (value === null || value.trim() === "") {
+    return [];
+  }
+
+  return value
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
+}
+
 export default function Home() {
-  const [screen, setScreen] = useState<Screen>("start");
-  const [selectedDan, setSelectedDan] = useState<DanOption | null>(null);
+  const searchParams = useSearchParams();
+  const requestedDan = parseDanParam(searchParams.get("dan"));
+  const requestedWrongNoteIds = parseWrongNoteIds(searchParams.get("wrongNoteIds"));
+  const requestedSource = searchParams.get("source");
+  const initialWrongNotes = loadWrongNotes();
+  const initialWrongNoteQuestions =
+    requestedWrongNoteIds.length > 0
+      ? buildWrongNoteQuestions(
+          initialWrongNotes.filter((wrongNote) => requestedWrongNoteIds.includes(wrongNote.id))
+        )
+      : [];
+  const shouldAutoStart =
+    searchParams.get("autostart") === "1" &&
+    ((requestedDan !== null && requestedWrongNoteIds.length === 0) || initialWrongNoteQuestions.length > 0);
+  const [screen, setScreen] = useState<Screen>(shouldAutoStart ? "quiz" : "start");
+  const [selectedDan, setSelectedDan] = useState<DanOption | null>(
+    requestedDan ?? (initialWrongNoteQuestions[0]?.multiplicand as DanOption | undefined) ?? null
+  );
   const [answerMode, setAnswerMode] = useState<AnswerMode>("multiple-choice");
   const [inputAnswer, setInputAnswer] = useState("");
   const [isTimerMode, setIsTimerMode] = useState(false);
   const [timePerQuestion, setTimePerQuestion] = useState(DEFAULT_TIME_PER_QUESTION);
   const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME_PER_QUESTION);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<Question[]>(
+    shouldAutoStart
+      ? requestedWrongNoteIds.length > 0
+        ? initialWrongNoteQuestions
+        : requestedDan !== null
+          ? generateQuestions(requestedDan, QUIZ_LENGTH)
+          : []
+      : []
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState<WrongAnswer[]>([]);
@@ -45,11 +104,16 @@ export default function Home() {
   const [isAnswered, setIsAnswered] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isRetryMode, setIsRetryMode] = useState(false);
+  const [isWrongNoteMode, setIsWrongNoteMode] = useState(shouldAutoStart && requestedSource === "wrong-note");
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [streakCount, setStreakCount] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
+  const [badges, setBadges] = useState<Badge[]>(() => loadBadges());
+  const [newlyUnlockedBadges, setNewlyUnlockedBadges] = useState<Badge[]>([]);
   const [studyRecords, setStudyRecords] = useState<StudyRecord[]>(() => loadStudyRecords());
+  const [wrongNotes, setWrongNotes] = useState<WrongNoteItem[]>(initialWrongNotes);
   const [sessionSaved, setSessionSaved] = useState(false);
+  const [sessionQuestionResults, setSessionQuestionResults] = useState<QuestionResult[]>([]);
 
   const currentQuestion = questions[currentIndex] ?? null;
   const totalQuestions = questions.length;
@@ -57,6 +121,9 @@ export default function Home() {
   const accuracy = calculateAccuracy(score, totalQuestions);
   const isLastQuestion = currentIndex === totalQuestions - 1;
   const timeoutCount = wrongAnswers.filter((wrongAnswer) => wrongAnswer.reason === "timeout").length;
+  const danStats: DanStats[] = getDanStats(studyRecords, wrongNotes);
+  const recommendedDans: RecommendedDan[] = getRecommendedDans(danStats, wrongNotes);
+  const unresolvedWrongNoteCount = wrongNotes.filter((wrongNote) => !wrongNote.isMastered).length;
 
   function resetCurrentQuestionState(): void {
     setSelectedAnswer(null);
@@ -96,22 +163,34 @@ export default function Home() {
     setInputAnswer(nextValue);
   }
 
-  function handleStartQuiz(): void {
-    if (selectedDan === null) {
-      return;
-    }
+  function startQuizSession(dan: DanOption): void {
+    const startedAt = new Date().toISOString();
+    const startBadgeResult = evaluateStartBadges(badges, dan, startedAt);
 
-    setQuestions(generateQuestions(selectedDan, QUIZ_LENGTH));
+    setBadges(saveBadges(startBadgeResult.badges));
+    setNewlyUnlockedBadges(startBadgeResult.newlyUnlockedBadges);
+    setSelectedDan(dan);
+    setQuestions(generateQuestions(dan, QUIZ_LENGTH));
     setCurrentIndex(0);
     setScore(0);
     setWrongAnswers([]);
     resetCurrentQuestionState();
     setIsRetryMode(false);
+    setIsWrongNoteMode(false);
     setStreakCount(0);
     setBestStreak(0);
     setTimeLeft(timePerQuestion);
     setSessionSaved(false);
+    setSessionQuestionResults([]);
     setScreen("quiz");
+  }
+
+  function handleStartQuiz(): void {
+    if (selectedDan === null) {
+      return;
+    }
+
+    startQuizSession(selectedDan);
   }
 
   function saveCurrentStudyRecord(): void {
@@ -119,9 +198,10 @@ export default function Home() {
       return;
     }
 
+    const playedAt = new Date().toISOString();
     const record: StudyRecord = {
       id: createStudyRecordId(),
-      playedAt: new Date().toISOString(),
+      playedAt,
       selectedDan,
       answerMode,
       isTimerMode,
@@ -130,10 +210,24 @@ export default function Home() {
       wrongCount,
       accuracy,
       bestStreak,
-      timeoutCount: isTimerMode ? timeoutCount : 0
+      timeoutCount: isTimerMode ? timeoutCount : 0,
+      questionResults: sessionQuestionResults
     };
 
-    setStudyRecords(saveStudyRecord(record));
+    const nextStudyRecords = saveStudyRecord(record);
+    const sessionBadgeResult = evaluateSessionBadges(badges, {
+      accuracy,
+      bestStreak,
+      isTimerMode,
+      timeoutCount,
+      studyRecords: nextStudyRecords,
+      wrongNotes,
+      playedAt
+    });
+
+    setStudyRecords(nextStudyRecords);
+    setBadges(saveBadges(sessionBadgeResult.badges));
+    setNewlyUnlockedBadges((prevBadges) => [...prevBadges, ...sessionBadgeResult.newlyUnlockedBadges]);
     setSessionSaved(true);
   }
 
@@ -142,16 +236,37 @@ export default function Home() {
       return;
     }
 
+    const answeredAt = new Date().toISOString();
+    const questionResult: QuestionResult = {
+      questionId: currentQuestion.id,
+      dan: currentQuestion.multiplicand,
+      multiplicand: currentQuestion.multiplicand,
+      multiplier: currentQuestion.multiplier,
+      correctAnswer: currentQuestion.correctAnswer,
+      userAnswer: answer,
+      isCorrect: reason === "correct",
+      reason,
+      answeredAt
+    };
+
     setSelectedAnswer(answer);
     setIsAnswered(true);
+    setSessionQuestionResults((prevQuestionResults) => [...prevQuestionResults, questionResult]);
 
     if (reason === "correct") {
       const nextStreak = streakCount + 1;
+      const nextWrongNotes = markWrongNoteResolved(questionResult);
+      const wrongNoteBadgeResult = evaluateWrongNoteBadges(badges, nextWrongNotes, answeredAt);
 
       setScore((prevScore) => prevScore + 1);
       setStreakCount(nextStreak);
       setBestStreak((prevBestStreak) => Math.max(prevBestStreak, nextStreak));
       setFeedbackMessage(getRandomFeedbackMessage(CORRECT_FEEDBACK_MESSAGES));
+      setWrongNotes(nextWrongNotes);
+      setBadges(saveBadges(wrongNoteBadgeResult.badges));
+      if (wrongNoteBadgeResult.newlyUnlockedBadges.length > 0) {
+        setNewlyUnlockedBadges((prevBadges) => [...prevBadges, ...wrongNoteBadgeResult.newlyUnlockedBadges]);
+      }
       if (soundEnabled) {
         playCorrectSound();
       }
@@ -170,6 +285,7 @@ export default function Home() {
         reason
       }
     ]);
+    setWrongNotes(saveWrongNoteItem(questionResult));
     if (reason === "timeout") {
       setFeedbackMessage(`시간이 끝났어요! 정답은 ${currentQuestion.correctAnswer}예요!`);
     } else {
@@ -258,9 +374,12 @@ export default function Home() {
     setWrongAnswers([]);
     resetCurrentQuestionState();
     setIsRetryMode(true);
+    setIsWrongNoteMode(false);
     setStreakCount(0);
     setBestStreak(0);
     setSessionSaved(false);
+    setSessionQuestionResults([]);
+    setNewlyUnlockedBadges([]);
     setScreen("quiz");
   }
 
@@ -273,9 +392,12 @@ export default function Home() {
     setWrongAnswers([]);
     resetCurrentQuestionState();
     setIsRetryMode(false);
+    setIsWrongNoteMode(false);
     setStreakCount(0);
     setBestStreak(0);
     setSessionSaved(false);
+    setSessionQuestionResults([]);
+    setNewlyUnlockedBadges([]);
   }
 
   function handleToggleSound(): void {
@@ -290,6 +412,9 @@ export default function Home() {
         isTimerMode={isTimerMode}
         timePerQuestion={timePerQuestion}
         soundEnabled={soundEnabled}
+        danStats={danStats}
+        recommendedDans={recommendedDans}
+        unresolvedWrongNoteCount={unresolvedWrongNoteCount}
         onSelectDan={handleSelectDan}
         onSelectAnswerMode={handleSelectAnswerMode}
         onToggleTimerMode={handleToggleTimerMode}
@@ -313,6 +438,7 @@ export default function Home() {
         isAnswered={isAnswered}
         feedbackMessage={feedbackMessage}
         isRetryMode={isRetryMode}
+        isWrongNoteMode={isWrongNoteMode}
         inputAnswer={inputAnswer}
         isTimerMode={isTimerMode}
         timeLeft={timeLeft}
@@ -335,10 +461,12 @@ export default function Home() {
       wrongAnswers={wrongAnswers}
       accuracy={accuracy}
       isRetryMode={isRetryMode}
+      isWrongNoteMode={isWrongNoteMode}
       answerMode={answerMode}
       bestStreak={bestStreak}
       isTimerMode={isTimerMode}
       timeoutCount={timeoutCount}
+      newlyUnlockedBadges={newlyUnlockedBadges}
       studyRecords={studyRecords}
       onRetryWrongAnswers={handleRetryWrongAnswers}
       onGoHome={handleGoHome}

@@ -1,5 +1,7 @@
 import Link from "next/link";
-import type { AnswerMode, DanOption } from "@/types/quiz";
+import { DanStatsCard } from "@/components/DanStatsCard";
+import { RecommendedDanCard } from "@/components/RecommendedDanCard";
+import type { AnswerMode, DanStats, DanOption, RecommendedDan } from "@/types/quiz";
 import { SoundToggle } from "./SoundToggle";
 
 type StartScreenProps = {
@@ -8,6 +10,9 @@ type StartScreenProps = {
   isTimerMode: boolean;
   timePerQuestion: number;
   soundEnabled: boolean;
+  danStats: DanStats[];
+  recommendedDans: RecommendedDan[];
+  unresolvedWrongNoteCount: number;
   onSelectDan: (dan: DanOption) => void;
   onSelectAnswerMode: (mode: AnswerMode) => void;
   onToggleTimerMode: () => void;
@@ -33,6 +38,9 @@ export function StartScreen({
   isTimerMode,
   timePerQuestion,
   soundEnabled,
+  danStats,
+  recommendedDans,
+  unresolvedWrongNoteCount,
   onSelectDan,
   onSelectAnswerMode,
   onToggleTimerMode,
@@ -42,7 +50,7 @@ export function StartScreen({
 }: StartScreenProps) {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-8">
-      <section className="w-full max-w-xl rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(255,143,177,0.2)] backdrop-blur sm:p-6">
+      <section className="w-full max-w-5xl rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(255,143,177,0.2)] backdrop-blur sm:p-6">
         <div className="mb-8">
           <div className="flex items-start justify-between gap-4">
             <div className="text-left sm:text-center">
@@ -177,12 +185,75 @@ export function StartScreen({
           시작하기
         </button>
 
-        <Link
-          href="/all-dan"
-          className="mt-3 flex min-h-[56px] w-full items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-4 text-lg font-bold text-[var(--color-text-primary)] shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-soft-lavender)]"
-        >
-          전체 구구단 보러 가기
-        </Link>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <Link
+            href="/all-dan"
+            className="flex min-h-[56px] w-full items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-4 text-lg font-bold text-[var(--color-text-primary)] shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-soft-lavender)]"
+          >
+            전체 구구단 보러 가기
+          </Link>
+          <Link
+            href="/wrong-note"
+            className="flex min-h-[56px] w-full items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-4 text-lg font-bold text-[var(--color-text-primary)] shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-soft-yellow)]"
+          >
+            오답노트 보기
+          </Link>
+          <Link
+            href="/badges"
+            className="flex min-h-[56px] w-full items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-4 text-lg font-bold text-[var(--color-text-primary)] shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-soft-pink)]"
+          >
+            배지 보기
+          </Link>
+        </div>
+
+        <div className="mt-8 grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+          <div className="rounded-[28px] bg-[var(--color-soft-lavender)]/60 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-[var(--color-text-secondary)]">오늘의 추천</p>
+                <h2 className="mt-1 text-2xl font-extrabold text-[var(--color-text-primary)]">
+                  다시 보면 좋은 단
+                </h2>
+              </div>
+
+              <Link
+                href="/dashboard"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-bold text-[var(--color-text-primary)] transition-transform duration-200 hover:-translate-y-0.5"
+              >
+                전체 보기
+              </Link>
+            </div>
+
+            <div className="mt-4 grid gap-4">
+              {recommendedDans.slice(0, 2).map((recommendation) => (
+                <RecommendedDanCard key={`${recommendation.reason}-${recommendation.dan}`} recommendation={recommendation} />
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[28px] bg-[var(--color-soft-pink)]/55 p-4">
+            <h2 className="text-2xl font-extrabold text-[var(--color-text-primary)]">학습 요약</h2>
+            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+              많이 풀지 못한 단과 남아 있는 오답을 가볍게 확인해보세요.
+            </p>
+
+            <div className="mt-4 grid gap-3">
+              <div className="rounded-[22px] bg-white/90 p-4">
+                <p className="text-sm font-semibold text-[var(--color-text-secondary)]">남아 있는 오답노트</p>
+                <p className="mt-2 text-3xl font-extrabold text-[var(--color-text-primary)]">
+                  {unresolvedWrongNoteCount}
+                </p>
+              </div>
+              {danStats
+                .filter((stats) => stats.totalSolved > 0)
+                .sort((left, right) => left.accuracy - right.accuracy)
+                .slice(0, 2)
+                .map((stats) => (
+                  <DanStatsCard key={stats.dan} stats={stats} />
+                ))}
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   );

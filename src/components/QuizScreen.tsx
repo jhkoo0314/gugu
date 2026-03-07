@@ -17,6 +17,7 @@ type QuizScreenProps = {
   isAnswered: boolean;
   feedbackMessage: string;
   isRetryMode: boolean;
+  isWrongNoteMode: boolean;
   inputAnswer: string;
   isTimerMode: boolean;
   timeLeft: number;
@@ -57,6 +58,7 @@ export function QuizScreen({
   isAnswered,
   feedbackMessage,
   isRetryMode,
+  isWrongNoteMode,
   inputAnswer,
   isTimerMode,
   timeLeft,
@@ -83,7 +85,7 @@ export function QuizScreen({
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
             <p className="inline-flex rounded-full bg-[var(--color-soft-lavender)] px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)]">
-              {isRetryMode ? "오답 다시 풀기" : "일반 연습"}
+              {isWrongNoteMode ? "오답노트 복습" : isRetryMode ? "오답 다시 풀기" : "일반 연습"}
             </p>
             <h1 className="mt-3 text-xl font-extrabold text-[var(--color-text-primary)] sm:text-2xl">
               {currentNumber} / {totalQuestions} 문제
