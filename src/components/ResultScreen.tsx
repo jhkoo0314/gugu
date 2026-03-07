@@ -12,7 +12,7 @@ type ResultScreenProps = {
 
 function getResultMessage(score: number, totalQuestions: number, wrongCount: number): string {
   if (totalQuestions > 0 && score === totalQuestions) {
-    return "오호 구지원 모두 맞았어요! 정말 대단해요!";
+    return "두쫀모찌 모두 맞았어요! 정말 대단해요!";
   }
 
   if (wrongCount === 0) {
@@ -20,7 +20,7 @@ function getResultMessage(score: number, totalQuestions: number, wrongCount: num
   }
 
   if (score >= Math.ceil(totalQuestions / 2)) {
-    return "지원아 오늘도 열심히 잘했어!";
+    return "두쫀모찌 오늘도 열심히 잘했어!";
   }
 
   return "다시 도전하면 더 잘할 수 있어요!";

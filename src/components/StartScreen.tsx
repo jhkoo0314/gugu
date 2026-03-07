@@ -19,7 +19,7 @@ export function StartScreen({ selectedDan, onSelectDan, onStart }: StartScreenPr
       <section className="w-full max-w-xl rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(255,143,177,0.2)] backdrop-blur sm:p-6">
         <div className="mb-8 text-center">
           <p className="mb-3 inline-flex rounded-full bg-[var(--color-soft-pink)] px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)]">
-            반짝반짝 구구단 시간
+            두쫀모찌 구구단 시간
           </p>
           <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">
             구구단 연습장
