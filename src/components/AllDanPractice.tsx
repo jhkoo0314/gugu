@@ -33,7 +33,7 @@ function TableCard({ dan, isExpanded, onExpand }: TableCardProps) {
         <h2 className={`${isExpanded ? "text-3xl" : "text-2xl"} font-extrabold text-[var(--color-text-primary)]`}>
           {dan}단
         </h2>
-        <span className="rounded-full bg-white/80 px-3 py-1 text-sm font-semibold text-[var(--color-text-secondary)]">
+        <span className="accent-badge bg-white/80 px-3 py-1 text-sm font-semibold text-[var(--color-text-secondary)]">
           {isExpanded ? "크게 보는 중" : "눌러서 확대"}
         </span>
       </div>
@@ -86,10 +86,10 @@ export function AllDanPractice() {
   return (
     <main className="px-4 py-8 sm:px-6">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <section className="rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(201,182,255,0.22)] backdrop-blur sm:p-6">
+        <section className="app-shell">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="inline-flex rounded-full bg-[var(--color-soft-yellow)] px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)]">
+              <p className="accent-badge bg-[var(--color-soft-yellow)] text-[var(--color-text-secondary)]">
                 2단부터 9단까지 한눈에 보기
               </p>
               <h1 className="mt-3 text-3xl font-extrabold text-[var(--color-text-primary)] sm:text-4xl">
@@ -102,17 +102,18 @@ export function AllDanPractice() {
 
             <Link
               href="/"
-              className="inline-flex min-h-[52px] items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-3 text-base font-bold text-[var(--color-text-primary)] shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-soft-lavender)]"
+              className="secondary-button"
             >
               퀴즈로 돌아가기
             </Link>
           </div>
         </section>
 
-        <section className="rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(255,143,177,0.16)] backdrop-blur sm:p-6">
+        <section className="soft-card-pink">
           <div className="flex flex-col gap-5">
             <div>
-              <h2 className="text-2xl font-extrabold text-[var(--color-text-primary)]">눌러서 연습해봐요</h2>
+              <p className="section-kicker">눌러서 연습해봐요</p>
+              <h2 className="mt-1 text-2xl font-extrabold text-[var(--color-text-primary)]">한 문제씩 떠올려보기</h2>
               <p className="mt-2 text-base text-[var(--color-text-secondary)]">
                 단과 숫자를 고른 뒤, 답을 생각해보고 확인 버튼을 눌러보세요.
               </p>
@@ -129,10 +130,10 @@ export function AllDanPractice() {
                       key={dan}
                       type="button"
                       onClick={() => handleSelectDan(dan)}
-                      className={`min-h-[60px] rounded-[22px] border px-4 py-3 text-base font-bold transition-transform duration-200 ${
+                      className={`choice-chip min-h-[60px] rounded-[22px] text-center text-base font-bold ${
                         isSelected
-                          ? "border-[var(--color-brand-primary)] bg-[var(--color-soft-pink)] text-[var(--color-text-primary)] shadow-[0_14px_32px_rgba(255,143,177,0.22)]"
-                          : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:-translate-y-0.5 hover:bg-[var(--color-soft-lavender)]"
+                          ? "border-[var(--color-brand-primary)] bg-[var(--color-soft-pink)] text-[var(--color-text-primary)] shadow-[0_14px_32px_rgba(255,143,177,0.22)] ring-2 ring-pink-100"
+                          : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:bg-[var(--color-soft-lavender)]"
                       }`}
                     >
                       {dan}단
@@ -144,7 +145,7 @@ export function AllDanPractice() {
 
             <div>
               <p className="mb-3 text-sm font-semibold text-[var(--color-text-secondary)]">곱하는 수 선택</p>
-              <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-9">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3 lg:grid-cols-9">
                 {MULTIPLIER_RANGE.map((multiplier) => {
                   const isSelected = practiceState.multiplier === multiplier;
 
@@ -153,10 +154,10 @@ export function AllDanPractice() {
                       key={multiplier}
                       type="button"
                       onClick={() => handleSelectMultiplier(multiplier)}
-                      className={`min-h-[60px] rounded-[22px] border px-4 py-3 text-base font-bold transition-transform duration-200 ${
+                      className={`choice-chip min-h-[60px] rounded-[22px] text-center text-base font-bold ${
                         isSelected
-                          ? "border-[var(--color-brand-secondary)] bg-[var(--color-soft-lavender)] text-[var(--color-text-primary)] shadow-[0_14px_32px_rgba(201,182,255,0.22)]"
-                          : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:-translate-y-0.5 hover:bg-[var(--color-soft-pink)]"
+                          ? "border-[var(--color-brand-secondary)] bg-[var(--color-soft-lavender)] text-[var(--color-text-primary)] shadow-[0_14px_32px_rgba(201,182,255,0.22)] ring-2 ring-violet-100"
+                          : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:bg-[var(--color-soft-pink)]"
                       }`}
                     >
                       × {multiplier}
@@ -166,17 +167,17 @@ export function AllDanPractice() {
               </div>
             </div>
 
-            <div className="rounded-[28px] bg-[linear-gradient(180deg,rgba(255,241,246,0.95),rgba(255,255,255,0.95))] p-5 text-center shadow-[0_18px_50px_rgba(201,182,255,0.18)] sm:p-6">
+            <div className="soft-card text-center sm:p-6">
               <p className="text-sm font-semibold text-[var(--color-text-secondary)]">지금 연습할 문제</p>
-              <p className="mt-4 text-5xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-6xl">
+              <p className="mt-4 text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-6xl">
                 {practiceState.dan} × {practiceState.multiplier}
               </p>
-              <p className="mt-2 text-3xl font-bold text-[var(--color-brand-secondary)]">= ?</p>
+              <p className="mt-2 inline-flex rounded-full bg-[var(--color-soft-lavender)] px-5 py-2 text-3xl font-bold text-[var(--color-brand-secondary)]">= ?</p>
 
               <button
                 type="button"
                 onClick={() => setIsAnswerVisible((prevState) => !prevState)}
-                className="mt-6 min-h-[56px] rounded-full bg-[var(--color-brand-primary)] px-6 py-3 text-lg font-bold text-white shadow-[0_18px_40px_rgba(255,143,177,0.24)] transition-transform duration-200 hover:-translate-y-0.5"
+                className="primary-button mt-6"
               >
                 {isAnswerVisible ? "답 다시 가리기" : "정답 확인하기"}
               </button>
@@ -199,7 +200,8 @@ export function AllDanPractice() {
 
         <section>
           <div className="mb-4">
-            <h2 className="text-2xl font-extrabold text-[var(--color-text-primary)]">전체 구구단 보기</h2>
+            <p className="section-kicker">전체 구구단 보기</p>
+            <h2 className="mt-1 text-2xl font-extrabold text-[var(--color-text-primary)]">원하는 단을 크게 펼쳐보기</h2>
             <p className="mt-2 text-base text-[var(--color-text-secondary)]">
               아래 카드에서 원하는 단을 누르면 그 카드가 더 크게 펼쳐져요.
             </p>

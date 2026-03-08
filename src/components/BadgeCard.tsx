@@ -25,12 +25,18 @@ function formatUnlockedAt(value: string | null): string {
 export function BadgeCard({ badge }: BadgeCardProps) {
   return (
     <article
-      className={`rounded-[28px] border p-5 shadow-[0_18px_50px_rgba(255,143,177,0.12)] ${
+      className={`relative overflow-hidden rounded-[28px] border p-5 shadow-[0_18px_50px_rgba(255,143,177,0.12)] ${
         badge.isUnlocked
-          ? "border-white/70 bg-white/90"
+          ? "border-white/70 bg-white/92"
           : "border-[var(--color-border)] bg-white/60 opacity-80"
       }`}
     >
+      <div
+        className={`absolute right-[-12px] top-[-16px] h-20 w-20 rounded-full blur-2xl ${
+          badge.isUnlocked ? "bg-[rgba(255,217,106,0.16)]" : "bg-[rgba(217,217,227,0.24)]"
+        }`}
+        aria-hidden="true"
+      />
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-2xl font-extrabold text-[var(--color-text-primary)]">{badge.title}</p>
@@ -39,7 +45,7 @@ export function BadgeCard({ badge }: BadgeCardProps) {
           </p>
         </div>
         <span
-          className={`rounded-full px-3 py-1 text-xs font-bold ${
+          className={`accent-badge px-3 py-1 text-xs font-bold ${
             badge.isUnlocked
               ? "bg-[var(--color-soft-yellow)] text-[var(--color-text-primary)]"
               : "bg-[var(--color-disabled)] text-[var(--color-text-secondary)]"
@@ -49,7 +55,7 @@ export function BadgeCard({ badge }: BadgeCardProps) {
         </span>
       </div>
 
-      <p className="mt-4 text-sm font-medium text-[var(--color-text-secondary)]">
+      <p className="mt-4 inline-flex rounded-full bg-white/80 px-3 py-2 text-sm font-medium text-[var(--color-text-secondary)]">
         {formatUnlockedAt(badge.unlockedAt)}
       </p>
     </article>

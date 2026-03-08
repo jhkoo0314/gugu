@@ -20,10 +20,11 @@ function getReasonLabel(reason: RecommendedDan["reason"]): string {
 
 export function RecommendedDanCard({ recommendation }: RecommendedDanCardProps) {
   return (
-    <article className="rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(255,143,177,0.14)]">
+    <article className="soft-card relative overflow-hidden">
+      <div className="absolute bottom-[-14px] right-[-16px] h-24 w-24 rounded-full bg-[rgba(255,143,177,0.12)] blur-2xl" aria-hidden="true" />
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-2xl font-extrabold text-[var(--color-text-primary)]">{recommendation.dan}단 추천</h3>
-        <span className="rounded-full bg-[var(--color-soft-yellow)] px-3 py-1 text-xs font-bold text-[var(--color-text-primary)]">
+        <span className="accent-badge bg-[var(--color-soft-yellow)] px-3 py-1 text-xs font-bold text-[var(--color-text-primary)]">
           {getReasonLabel(recommendation.reason)}
         </span>
       </div>
@@ -32,7 +33,7 @@ export function RecommendedDanCard({ recommendation }: RecommendedDanCardProps) 
 
       <Link
         href={`/?dan=${recommendation.dan}&autostart=1`}
-        className="mt-5 inline-flex min-h-[48px] items-center justify-center rounded-full bg-[var(--color-brand-primary)] px-5 py-3 text-base font-bold text-white shadow-[0_18px_40px_rgba(255,143,177,0.24)] transition-transform duration-200 hover:-translate-y-0.5"
+        className="primary-button mt-5 min-h-[48px] px-5 py-3 text-base"
       >
         {recommendation.dan}단 바로 시작
       </Link>

@@ -15,6 +15,7 @@ import { generateQuestions } from "@/lib/generateQuestions";
 import { loadWrongNotes, markWrongNoteResolved, saveWrongNoteItem } from "@/lib/wrongNotes";
 import { playCorrectSound, playWrongSound } from "@/lib/playQuizSound";
 import { loadStudyRecords, saveStudyRecord } from "@/lib/studyRecords";
+import { useHydrated } from "@/lib/useHydrated";
 import type {
   AnswerMode,
   Badge,
@@ -79,6 +80,7 @@ function HomeContent() {
   const shouldAutoStart =
     searchParams.get("autostart") === "1" &&
     ((requestedDan !== null && requestedWrongNoteIds.length === 0) || initialWrongNoteQuestions.length > 0);
+  const isHydrated = useHydrated();
   const [screen, setScreen] = useState<Screen>(shouldAutoStart ? "quiz" : "start");
   const [selectedDan, setSelectedDan] = useState<DanOption | null>(
     requestedDan ?? (initialWrongNoteQuestions[0]?.multiplicand as DanOption | undefined) ?? null
@@ -412,6 +414,10 @@ function HomeContent() {
     setSoundEnabled((prevSoundEnabled) => !prevSoundEnabled);
   }
 
+  if (!isHydrated) {
+    return null;
+  }
+
   if (screen === "start") {
     return (
       <StartScreen
@@ -457,6 +463,7 @@ function HomeContent() {
         onInputAnswerChange={handleInputAnswerChange}
         onSubmitInputAnswer={handleSubmitInputAnswer}
         onNext={handleNextQuestion}
+        onGoHome={handleGoHome}
         onToggleSound={handleToggleSound}
       />
     );

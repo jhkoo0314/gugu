@@ -3,19 +3,26 @@
 import Link from "next/link";
 import { useState } from "react";
 import { BadgeCard } from "@/components/BadgeCard";
+import { MascotBubble } from "@/components/MascotBubble";
 import { loadBadges } from "@/lib/badges";
+import { useHydrated } from "@/lib/useHydrated";
 
 export function BadgesView() {
+  const isHydrated = useHydrated();
   const [badges] = useState(() => loadBadges());
   const unlockedCount = badges.filter((badge) => badge.isUnlocked).length;
+
+  if (!isHydrated) {
+    return null;
+  }
 
   return (
     <main className="px-4 py-8 sm:px-6">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <section className="rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(255,143,177,0.16)] backdrop-blur sm:p-6">
+        <section className="app-shell">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="inline-flex rounded-full bg-[var(--color-soft-yellow)] px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)]">
+              <p className="accent-badge bg-[var(--color-soft-yellow)] text-[var(--color-text-secondary)]">
                 작은 성취 모음
               </p>
               <h1 className="mt-3 text-3xl font-extrabold text-[var(--color-text-primary)] sm:text-4xl">
@@ -28,23 +35,23 @@ export function BadgesView() {
 
             <Link
               href="/"
-              className="inline-flex min-h-[52px] items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-3 text-base font-bold text-[var(--color-text-primary)] shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-soft-lavender)]"
+              className="secondary-button"
             >
               퀴즈로 돌아가기
             </Link>
           </div>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-[28px] bg-[var(--color-soft-pink)] p-5">
+        <section className="grid gap-4 lg:grid-cols-3">
+          <div className="stat-tile bg-[var(--color-soft-pink)]">
             <p className="text-sm font-semibold text-[var(--color-text-secondary)]">획득 배지</p>
             <p className="mt-2 text-4xl font-extrabold text-[var(--color-text-primary)]">{unlockedCount}</p>
           </div>
-          <div className="rounded-[28px] bg-[var(--color-soft-lavender)] p-5">
+          <div className="stat-tile bg-[var(--color-soft-lavender)]">
             <p className="text-sm font-semibold text-[var(--color-text-secondary)]">전체 배지</p>
             <p className="mt-2 text-4xl font-extrabold text-[var(--color-text-primary)]">{badges.length}</p>
           </div>
-          <div className="rounded-[28px] bg-[var(--color-soft-yellow)] p-5">
+          <div className="stat-tile bg-[var(--color-soft-yellow)]">
             <p className="text-sm font-semibold text-[var(--color-text-secondary)]">진행률</p>
             <p className="mt-2 text-4xl font-extrabold text-[var(--color-text-primary)]">
               {badges.length === 0 ? 0 : Math.round((unlockedCount / badges.length) * 100)}%
@@ -54,17 +61,33 @@ export function BadgesView() {
 
         <section>
           <div className="mb-4">
-            <h2 className="text-2xl font-extrabold text-[var(--color-text-primary)]">전체 배지 목록</h2>
+            <p className="section-kicker">전체 배지 목록</p>
+            <h2 className="mt-1 text-2xl font-extrabold text-[var(--color-text-primary)]">스티커북처럼 모아보기</h2>
             <p className="mt-2 text-base text-[var(--color-text-secondary)]">
               조건을 채우면 잠긴 배지가 열리고, 획득 날짜도 함께 남아요.
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {badges.map((badge) => (
-              <BadgeCard key={badge.id} badge={badge} />
-            ))}
-          </div>
+          {badges.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {badges.map((badge) => (
+                <BadgeCard key={badge.id} badge={badge} />
+              ))}
+            </div>
+          ) : (
+            <div className="soft-card-pink text-center">
+              <div className="flex justify-center">
+                <MascotBubble message="첫 배지를 같이 모아보자!" tone="yellow" align="left" />
+              </div>
+              <p className="mt-3 text-lg font-bold text-[var(--color-text-primary)]">첫 배지를 모아볼까?</p>
+              <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+                문제를 풀면 배지를 받을 수 있어요.
+              </p>
+              <Link href="/" className="primary-button mt-5">
+                퀴즈 시작하기
+              </Link>
+            </div>
+          )}
         </section>
       </div>
     </main>

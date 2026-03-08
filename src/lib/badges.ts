@@ -54,7 +54,7 @@ const BADGE_DEFINITIONS: Record<BadgeId, Pick<Badge, "title" | "description">> =
   }
 };
 
-function createDefaultBadges(): Badge[] {
+export function createDefaultBadges(): Badge[] {
   return Object.entries(BADGE_DEFINITIONS).map(([id, badge]) => ({
     id: id as BadgeId,
     title: badge.title,

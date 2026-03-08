@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { MascotBubble } from "@/components/MascotBubble";
+import { useHydrated } from "@/lib/useHydrated";
 import { loadWrongNotes } from "@/lib/wrongNotes";
 import type { WrongNoteItem } from "@/types/quiz";
 
@@ -47,6 +49,7 @@ function buildReviewHref(items: WrongNoteItem[]): string {
 }
 
 export function WrongNoteView() {
+  const isHydrated = useHydrated();
   const [wrongNotes] = useState(() => loadWrongNotes());
   const [selectedDan, setSelectedDan] = useState<number | "all">("all");
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
@@ -71,13 +74,17 @@ export function WrongNoteView() {
 
   const pendingCount = wrongNotes.filter((item) => !item.isMastered).length;
 
+  if (!isHydrated) {
+    return null;
+  }
+
   return (
     <main className="px-4 py-8 sm:px-6">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <section className="rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(255,143,177,0.16)] backdrop-blur sm:p-6">
+        <section className="app-shell">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="inline-flex rounded-full bg-[var(--color-soft-pink)] px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)]">
+              <p className="accent-badge bg-[var(--color-soft-pink)] text-[var(--color-text-secondary)]">
                 누적 오답 모음
               </p>
               <h1 className="mt-3 text-3xl font-extrabold text-[var(--color-text-primary)] sm:text-4xl">
@@ -90,7 +97,7 @@ export function WrongNoteView() {
 
             <Link
               href="/"
-              className="inline-flex min-h-[52px] items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-3 text-base font-bold text-[var(--color-text-primary)] shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-soft-lavender)]"
+              className="secondary-button"
             >
               퀴즈로 돌아가기
             </Link>
@@ -98,21 +105,22 @@ export function WrongNoteView() {
         </section>
 
         <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(201,182,255,0.16)] backdrop-blur sm:p-6">
-            <h2 className="text-2xl font-extrabold text-[var(--color-text-primary)]">요약</h2>
+          <div className="soft-card-pink">
+            <p className="section-kicker">요약</p>
+            <h2 className="mt-1 text-2xl font-extrabold text-[var(--color-text-primary)]">복습 노트 한눈에 보기</h2>
             <div className="mt-5 grid gap-3">
-              <div className="rounded-[24px] bg-[var(--color-error-soft)] p-4">
+              <div className="stat-tile bg-[var(--color-error-soft)]">
                 <p className="text-sm font-semibold text-[var(--color-text-secondary)]">총 오답 문제</p>
                 <p className="mt-2 text-3xl font-extrabold text-[var(--color-text-primary)]">{wrongNotes.length}</p>
               </div>
-              <div className="rounded-[24px] bg-[var(--color-soft-yellow)] p-4">
+              <div className="stat-tile bg-[var(--color-soft-yellow)]">
                 <p className="text-sm font-semibold text-[var(--color-text-secondary)]">아직 해결 전</p>
                 <p className="mt-2 text-3xl font-extrabold text-[var(--color-text-primary)]">{pendingCount}</p>
               </div>
               {filteredWrongNotes.length > 0 ? (
                 <Link
                   href={buildReviewHref(filteredWrongNotes)}
-                  className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-[var(--color-brand-primary)] px-6 py-3 text-base font-bold text-white shadow-[0_18px_40px_rgba(255,143,177,0.24)] transition-transform duration-200 hover:-translate-y-0.5"
+                  className="primary-button"
                 >
                   현재 필터로 복습 시작
                 </Link>
@@ -120,19 +128,20 @@ export function WrongNoteView() {
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(255,143,177,0.14)] backdrop-blur sm:p-6">
-            <h2 className="text-2xl font-extrabold text-[var(--color-text-primary)]">필터</h2>
+          <div className="soft-card-lavender">
+            <p className="section-kicker">필터</p>
+            <h2 className="mt-1 text-2xl font-extrabold text-[var(--color-text-primary)]">원하는 문제만 골라보기</h2>
             <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr]">
               <div>
                 <p className="mb-3 text-sm font-semibold text-[var(--color-text-secondary)]">단 선택</p>
-                <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3">
                   <button
                     type="button"
                     onClick={() => setSelectedDan("all")}
-                    className={`rounded-[20px] px-4 py-3 text-sm font-bold ${
+                    className={`choice-chip rounded-[20px] px-4 py-3 text-center text-sm font-bold ${
                       selectedDan === "all"
-                        ? "bg-[var(--color-soft-pink)] text-[var(--color-text-primary)]"
-                        : "bg-[var(--color-soft-lavender)] text-[var(--color-text-secondary)]"
+                        ? "border-[var(--color-brand-primary)] bg-[var(--color-soft-pink)] text-[var(--color-text-primary)] ring-2 ring-pink-100"
+                        : "border-transparent bg-white/70 text-[var(--color-text-secondary)]"
                     }`}
                   >
                     전체
@@ -142,10 +151,10 @@ export function WrongNoteView() {
                       key={dan}
                       type="button"
                       onClick={() => setSelectedDan(dan)}
-                      className={`rounded-[20px] px-4 py-3 text-sm font-bold ${
+                      className={`choice-chip rounded-[20px] px-4 py-3 text-center text-sm font-bold ${
                         selectedDan === dan
-                          ? "bg-[var(--color-soft-pink)] text-[var(--color-text-primary)]"
-                          : "bg-[var(--color-soft-lavender)] text-[var(--color-text-secondary)]"
+                          ? "border-[var(--color-brand-primary)] bg-[var(--color-soft-pink)] text-[var(--color-text-primary)] ring-2 ring-pink-100"
+                          : "border-transparent bg-white/70 text-[var(--color-text-secondary)]"
                       }`}
                     >
                       {dan}단
@@ -156,7 +165,7 @@ export function WrongNoteView() {
 
               <div>
                 <p className="mb-3 text-sm font-semibold text-[var(--color-text-secondary)]">상태</p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid gap-2 sm:grid-cols-3 sm:gap-3">
                   {[
                     { value: "all", label: "전체" },
                     { value: "pending", label: "해결 전" },
@@ -166,10 +175,10 @@ export function WrongNoteView() {
                       key={option.value}
                       type="button"
                       onClick={() => setFilterMode(option.value as FilterMode)}
-                      className={`rounded-[20px] px-4 py-3 text-sm font-bold ${
+                      className={`choice-chip rounded-[20px] px-4 py-3 text-center text-sm font-bold ${
                         filterMode === option.value
-                          ? "bg-[var(--color-soft-pink)] text-[var(--color-text-primary)]"
-                          : "bg-[var(--color-soft-lavender)] text-[var(--color-text-secondary)]"
+                          ? "border-[var(--color-brand-secondary)] bg-[var(--color-soft-lavender)] text-[var(--color-text-primary)] ring-2 ring-violet-100"
+                          : "border-transparent bg-white/70 text-[var(--color-text-secondary)]"
                       }`}
                     >
                       {option.label}
@@ -184,17 +193,15 @@ export function WrongNoteView() {
         <section>
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-extrabold text-[var(--color-text-primary)]">오답 목록</h2>
+              <p className="section-kicker">오답 목록</p>
+              <h2 className="mt-1 text-2xl font-extrabold text-[var(--color-text-primary)]">문제별 해결 상태</h2>
               <p className="mt-2 text-base text-[var(--color-text-secondary)]">
                 문제별로 마지막 오답과 해결 상태를 확인할 수 있어요.
               </p>
             </div>
 
             {wrongNotes.length > 0 ? (
-              <Link
-                href={buildReviewHref(wrongNotes)}
-                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-5 py-3 text-sm font-bold text-[var(--color-text-primary)] transition-transform duration-200 hover:-translate-y-0.5"
-              >
+              <Link href={buildReviewHref(wrongNotes)} className="mini-button">
                 전체 복습
               </Link>
             ) : null}
@@ -205,7 +212,7 @@ export function WrongNoteView() {
               filteredWrongNotes.map((item) => (
                 <article
                   key={item.id}
-                  className="rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(201,182,255,0.12)]"
+                  className={`soft-card ${item.isMastered ? "opacity-75" : ""}`}
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -213,7 +220,7 @@ export function WrongNoteView() {
                         <p className="text-2xl font-extrabold text-[var(--color-text-primary)]">
                           {item.multiplicand} × {item.multiplier} = {item.correctAnswer}
                         </p>
-                        <span className="rounded-full bg-[var(--color-soft-yellow)] px-3 py-1 text-xs font-bold text-[var(--color-text-primary)]">
+                        <span className="accent-badge bg-[var(--color-soft-yellow)] px-3 py-1 text-xs font-bold text-[var(--color-text-primary)]">
                           {item.dan}단
                         </span>
                       </div>
@@ -227,7 +234,7 @@ export function WrongNoteView() {
 
                     <div className="flex flex-col items-start gap-3 sm:items-end">
                       <span
-                        className={`rounded-full px-3 py-1 text-xs font-bold ${
+                        className={`accent-badge px-3 py-1 text-xs font-bold ${
                           item.isMastered
                             ? "bg-[var(--color-success-soft)] text-[var(--color-text-primary)]"
                             : "bg-[var(--color-error-soft)] text-[var(--color-text-primary)]"
@@ -237,7 +244,7 @@ export function WrongNoteView() {
                       </span>
                       <Link
                         href={buildReviewHref([item])}
-                        className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-[var(--color-brand-secondary)] px-5 py-3 text-sm font-bold text-white transition-transform duration-200 hover:-translate-y-0.5"
+                        className="mini-button border-transparent bg-gradient-to-r from-[var(--color-brand-secondary)] to-[var(--color-brand-secondary-strong)] text-white"
                       >
                         이 문제 다시 풀기
                       </Link>
@@ -246,11 +253,25 @@ export function WrongNoteView() {
                 </article>
               ))
             ) : (
-              <div className="rounded-[28px] border border-dashed border-[var(--color-border)] bg-white/70 p-8 text-center">
-                <p className="text-lg font-bold text-[var(--color-text-primary)]">조건에 맞는 오답이 없어요.</p>
-                <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
-                  다른 필터를 선택하거나 새로 연습해보세요.
+              <div className="soft-card-pink text-center">
+                <div className="flex justify-center">
+                  <MascotBubble
+                    message={wrongNotes.length === 0 ? "오답노트가 비어 있어!" : "다른 조건으로 다시 찾아볼까?"}
+                    tone="pink"
+                    align="left"
+                  />
+                </div>
+                <p className="mt-3 text-lg font-bold text-[var(--color-text-primary)]">
+                  {wrongNotes.length === 0 ? "오답노트가 비어 있어요!" : "조건에 맞는 오답이 없어요."}
                 </p>
+                <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+                  {wrongNotes.length === 0
+                    ? "정말 잘하고 있어요. 새로운 퀴즈를 시작해볼까요?"
+                    : "다른 필터를 선택하거나 새로 연습해보세요."}
+                </p>
+                <Link href="/" className="primary-button mt-5">
+                  새로운 퀴즈 시작하기
+                </Link>
               </div>
             )}
           </div>

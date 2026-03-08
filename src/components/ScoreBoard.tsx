@@ -12,7 +12,7 @@ type ScoreItemProps = {
 
 function ScoreItem({ label, value, accentClassName }: ScoreItemProps) {
   return (
-    <div className={`rounded-[24px] p-4 shadow-sm ${accentClassName}`}>
+    <div className={`stat-tile ${accentClassName}`}>
       <p className="text-sm font-semibold text-[var(--color-text-secondary)]">{label}</p>
       <p className="mt-2 text-2xl font-extrabold text-[var(--color-text-primary)]">{value}</p>
     </div>

@@ -40,7 +40,8 @@ function getStatusClassName(statusLabel: DanStats["statusLabel"]): string {
 
 export function DanStatsCard({ stats }: DanStatsCardProps) {
   return (
-    <article className="rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(201,182,255,0.14)]">
+    <article className="soft-card relative overflow-hidden">
+      <div className="absolute right-[-12px] top-[-18px] h-20 w-20 rounded-full bg-[rgba(201,182,255,0.12)] blur-2xl" aria-hidden="true" />
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-2xl font-extrabold text-[var(--color-text-primary)]">{stats.dan}단</p>
@@ -55,19 +56,19 @@ export function DanStatsCard({ stats }: DanStatsCardProps) {
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
-        <div className="rounded-[22px] bg-[var(--color-soft-pink)] p-4">
+        <div className="stat-tile bg-[var(--color-soft-pink)]">
           <p className="text-sm font-semibold text-[var(--color-text-secondary)]">정답률</p>
           <p className="mt-2 text-3xl font-extrabold text-[var(--color-text-primary)]">{stats.accuracy}%</p>
         </div>
-        <div className="rounded-[22px] bg-[var(--color-soft-lavender)] p-4">
+        <div className="stat-tile bg-[var(--color-soft-lavender)]">
           <p className="text-sm font-semibold text-[var(--color-text-secondary)]">총 풀이</p>
           <p className="mt-2 text-3xl font-extrabold text-[var(--color-text-primary)]">{stats.totalSolved}</p>
         </div>
-        <div className="rounded-[22px] bg-[var(--color-error-soft)] p-4">
+        <div className="stat-tile bg-[var(--color-error-soft)]">
           <p className="text-sm font-semibold text-[var(--color-text-secondary)]">오답</p>
           <p className="mt-2 text-2xl font-extrabold text-[var(--color-text-primary)]">{stats.wrongCount}</p>
         </div>
-        <div className="rounded-[22px] bg-[var(--color-success-soft)] p-4">
+        <div className="stat-tile bg-[var(--color-success-soft)]">
           <p className="text-sm font-semibold text-[var(--color-text-secondary)]">최고 streak</p>
           <p className="mt-2 text-2xl font-extrabold text-[var(--color-text-primary)]">{stats.bestStreak}</p>
         </div>

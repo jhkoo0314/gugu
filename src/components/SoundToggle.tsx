@@ -9,7 +9,7 @@ export function SoundToggle({ soundEnabled, onToggle }: SoundToggleProps) {
       type="button"
       onClick={onToggle}
       aria-pressed={soundEnabled}
-      className={`inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-transform duration-200 hover:-translate-y-0.5 ${
+      className={`mini-button gap-2 ${
         soundEnabled
           ? "border-[var(--color-brand-primary)] bg-[var(--color-soft-pink)] text-[var(--color-text-primary)]"
           : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)]"

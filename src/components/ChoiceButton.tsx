@@ -16,11 +16,11 @@ export function ChoiceButton({
   onClick
 }: ChoiceButtonProps) {
   let className =
-    "w-full rounded-[24px] border bg-white px-5 py-4 text-left text-xl font-bold text-[var(--color-text-primary)] shadow-sm transition-transform duration-200";
+    "w-full rounded-[24px] border bg-white/92 px-5 py-4 text-left text-xl font-bold text-[var(--color-text-primary)] shadow-[0_10px_24px_rgba(91,85,102,0.08)] transition duration-200 ease-out";
 
   if (!disabled) {
     className +=
-      " border-[var(--color-border)] hover:-translate-y-0.5 hover:border-[var(--color-brand-secondary)] hover:bg-[var(--color-soft-lavender)]";
+      " border-[var(--color-border)] hover:-translate-y-0.5 hover:scale-[1.01] hover:border-[var(--color-brand-secondary)] hover:bg-[var(--color-soft-lavender)] active:scale-[0.98]";
   }
 
   if (isCorrect) {
@@ -28,7 +28,7 @@ export function ChoiceButton({
   } else if (isWrong) {
     className += " border-[var(--color-error)] bg-[var(--color-error-soft)]";
   } else if (isSelected) {
-    className += " border-[var(--color-brand-primary)] bg-[var(--color-soft-pink)]";
+    className += " border-[var(--color-brand-primary)] bg-[var(--color-soft-pink)] ring-2 ring-pink-100";
   }
 
   if (disabled) {
