@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { HydrationShell } from "@/components/HydrationShell";
 import { MascotBubble } from "@/components/MascotBubble";
 import { useHydrated } from "@/lib/useHydrated";
 import { loadWrongNotes } from "@/lib/wrongNotes";
@@ -75,7 +76,12 @@ export function WrongNoteView() {
   const pendingCount = wrongNotes.filter((item) => !item.isMastered).length;
 
   if (!isHydrated) {
-    return null;
+    return (
+      <HydrationShell
+        title="오답노트"
+        description="복습할 문제를 불러오는 중이에요. 모바일에서도 먼저 화면이 보이도록 준비 상태를 표시합니다."
+      />
+    );
   }
 
   return (
@@ -280,3 +286,4 @@ export function WrongNoteView() {
     </main>
   );
 }
+

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DanStatsCard } from "@/components/DanStatsCard";
+import { HydrationShell } from "@/components/HydrationShell";
 import { MascotBubble } from "@/components/MascotBubble";
 import { RecommendedDanCard } from "@/components/RecommendedDanCard";
 import { getDanStats } from "@/lib/getDanStats";
@@ -24,7 +25,12 @@ export function DashboardView() {
   const unresolvedWrongCount = wrongNotes.filter((wrongNote) => !wrongNote.isMastered).length;
 
   if (!isHydrated) {
-    return null;
+    return (
+      <HydrationShell
+        title="학습 대시보드"
+        description="기록을 불러오고 있어요. 모바일에서는 첫 화면이 빈 것처럼 보이지 않도록 바로 안내 화면을 보여드릴게요."
+      />
+    );
   }
 
   return (
@@ -135,3 +141,4 @@ export function DashboardView() {
     </main>
   );
 }
+

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { BadgeCard } from "@/components/BadgeCard";
+import { HydrationShell } from "@/components/HydrationShell";
 import { MascotBubble } from "@/components/MascotBubble";
 import { loadBadges } from "@/lib/badges";
 import { useHydrated } from "@/lib/useHydrated";
@@ -13,7 +14,12 @@ export function BadgesView() {
   const unlockedCount = badges.filter((badge) => badge.isUnlocked).length;
 
   if (!isHydrated) {
-    return null;
+    return (
+      <HydrationShell
+        title="배지 컬렉션"
+        description="획득한 배지를 불러오는 중이에요. 잠시 후 반짝이는 배지 목록이 나타납니다."
+      />
+    );
   }
 
   return (
@@ -93,3 +99,4 @@ export function BadgesView() {
     </main>
   );
 }
+

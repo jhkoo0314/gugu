@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { QuizScreen } from "@/components/QuizScreen";
 import { ResultScreen } from "@/components/ResultScreen";
 import { StartScreen } from "@/components/StartScreen";
+import { HydrationShell } from "@/components/HydrationShell";
 import { evaluateSessionBadges, evaluateStartBadges, evaluateWrongNoteBadges, loadBadges, saveBadges } from "@/lib/badges";
 import { buildRetryQuestions } from "@/lib/buildRetryQuestions";
 import { buildWrongNoteQuestions } from "@/lib/buildWrongNoteQuestions";
@@ -415,7 +416,12 @@ function HomeContent() {
   }
 
   if (!isHydrated) {
-    return null;
+    return (
+      <HydrationShell
+        title="두쫀모찌 구구단 연습장"
+        description="설정과 학습 기록을 불러오는 중이에요. 모바일에서는 잠시만 기다리면 바로 시작 화면이 나타나요."
+      />
+    );
   }
 
   if (screen === "start") {
@@ -491,8 +497,16 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={null}>
+    <Suspense
+      fallback={
+        <HydrationShell
+          title="두쫀모찌 구구단 연습장"
+          description="화면을 준비하는 중이에요. 첫 진입에서는 잠깐만 기다려주세요."
+        />
+      }
+    >
       <HomeContent />
     </Suspense>
   );
 }
+
