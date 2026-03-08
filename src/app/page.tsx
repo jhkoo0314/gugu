@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useEffectEvent, useState } from "react";
+import { Suspense, useEffect, useEffectEvent, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { QuizScreen } from "@/components/QuizScreen";
 import { ResultScreen } from "@/components/ResultScreen";
@@ -114,6 +114,7 @@ function HomeContent() {
   const [wrongNotes, setWrongNotes] = useState<WrongNoteItem[]>(initialWrongNotes);
   const [sessionSaved, setSessionSaved] = useState(false);
   const [sessionQuestionResults, setSessionQuestionResults] = useState<QuestionResult[]>([]);
+  const timeLeftRef = useRef(timePerQuestion);
 
   const currentQuestion = questions[currentIndex] ?? null;
   const totalQuestions = questions.length;
@@ -300,6 +301,10 @@ function HomeContent() {
     handleEvaluateAnswer(null, "timeout");
   });
 
+  useEffect(() => {
+    timeLeftRef.current = timeLeft;
+  }, [timeLeft]);
+
   function handleAnswerSelect(answer: number): void {
     if (currentQuestion === null || isAnswered) {
       return;
@@ -332,15 +337,18 @@ function HomeContent() {
     }
 
     const timerId = window.setInterval(() => {
-      setTimeLeft((prevTimeLeft) => {
-        if (prevTimeLeft <= 1) {
-          window.clearInterval(timerId);
-          onTimeout();
-          return 0;
-        }
+      const nextTimeLeft = timeLeftRef.current - 1;
 
-        return prevTimeLeft - 1;
-      });
+      if (nextTimeLeft <= 0) {
+        timeLeftRef.current = 0;
+        window.clearInterval(timerId);
+        setTimeLeft(0);
+        onTimeout();
+        return;
+      }
+
+      timeLeftRef.current = nextTimeLeft;
+      setTimeLeft(nextTimeLeft);
     }, 1000);
 
     return () => {
