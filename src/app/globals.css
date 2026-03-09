@@ -36,9 +36,13 @@ body {
 
 html {
   -webkit-text-size-adjust: 100%;
+  background: var(--color-background-soft);
 }
 
 body {
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   background:
     radial-gradient(circle at 12% 10%, rgba(255, 143, 177, 0.2), transparent 22%),
     radial-gradient(circle at 88% 18%, rgba(201, 182, 255, 0.2), transparent 20%),
@@ -85,6 +89,33 @@ body::after {
 }
 
 @layer components {
+  .page-shell {
+    @apply px-4 sm:px-6;
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
+    padding-top: max(1.5rem, env(safe-area-inset-top));
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  .page-shell-center {
+    @apply flex justify-center;
+    align-items: flex-start;
+  }
+
+  @media (min-width: 640px) {
+    .page-shell {
+      padding-top: max(2rem, env(safe-area-inset-top));
+      padding-bottom: max(2rem, env(safe-area-inset-bottom));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .page-shell-center {
+      align-items: center;
+    }
+  }
+
   .app-shell {
     @apply relative mx-auto w-full max-w-6xl overflow-hidden rounded-[36px] border border-white/70 bg-white/75 p-5 shadow-[0_28px_90px_rgba(255,143,177,0.18)] backdrop-blur-md sm:p-7;
   }

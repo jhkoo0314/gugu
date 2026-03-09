@@ -5,7 +5,7 @@ type HydrationShellProps = {
 
 export function HydrationShell({ title, description }: HydrationShellProps) {
   return (
-    <main className="px-4 py-8 sm:px-6">
+    <main className="page-shell">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <section className="app-shell">
           <div className="soft-card-pink">

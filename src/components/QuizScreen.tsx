@@ -84,7 +84,7 @@ export function QuizScreen({
       : "bg-[var(--color-soft-pink)] text-[var(--color-text-primary)]";
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-8">
+    <main className="page-shell page-shell-center">
       <section className="app-shell max-w-2xl">
         <div className="orb-pink left-[-62px] top-[-58px] h-36 w-36" aria-hidden="true" />
         <div className="orb-lavender bottom-[-72px] right-[-48px] h-44 w-44" aria-hidden="true" />

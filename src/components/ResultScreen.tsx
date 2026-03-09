@@ -79,7 +79,7 @@ export function ResultScreen({
   const resultMessage = getResultMessage(score, totalQuestions, wrongCount);
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-8">
+    <main className="page-shell page-shell-center">
       <section className="app-shell max-w-4xl">
         <div className="orb-pink left-[-64px] top-[-52px] h-40 w-40" aria-hidden="true" />
         <div className="orb-lavender bottom-[-72px] right-[-48px] h-48 w-48" aria-hidden="true" />

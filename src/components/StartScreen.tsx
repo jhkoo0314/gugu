@@ -50,7 +50,7 @@ export function StartScreen({
   onToggleSound
 }: StartScreenProps) {
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-8">
+    <main className="page-shell page-shell-center">
       <section className="app-shell">
         <div className="orb-pink left-[-72px] top-[-54px] h-44 w-44" aria-hidden="true" />
         <div className="orb-lavender bottom-[-76px] right-[-52px] h-52 w-52" aria-hidden="true" />
