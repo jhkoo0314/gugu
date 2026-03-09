@@ -41,9 +41,13 @@ function getBestStreak(questionResults: QuestionResult[]): number {
 
 export function getDanStats(studyRecords: StudyRecord[], wrongNotes: WrongNoteItem[]): DanStats[] {
   return DAN_RANGE.map((dan) => {
-    const questionResults = studyRecords.flatMap((studyRecord) =>
-      (studyRecord.questionResults ?? []).filter((questionResult) => questionResult.dan === dan)
-    );
+    const questionResults = studyRecords.reduce<QuestionResult[]>((results, studyRecord) => {
+      const matchingResults = (studyRecord.questionResults ?? []).filter(
+        (questionResult) => questionResult.dan === dan
+      );
+
+      return [...results, ...matchingResults];
+    }, []);
     const totalSolved = questionResults.length;
     const correctCount = questionResults.filter((questionResult) => questionResult.isCorrect).length;
     const wrongCount = totalSolved - correctCount;
