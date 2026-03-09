@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useEffectEvent, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { QuizScreen } from "@/components/QuizScreen";
 import { ResultScreen } from "@/components/ResultScreen";
@@ -300,10 +300,6 @@ function HomeContent() {
     }
   }
 
-  const onTimeout = useEffectEvent(() => {
-    handleEvaluateAnswer(null, "timeout");
-  });
-
   useEffect(() => {
     timeLeftRef.current = timeLeft;
   }, [timeLeft]);
@@ -346,7 +342,7 @@ function HomeContent() {
         timeLeftRef.current = 0;
         window.clearInterval(timerId);
         setTimeLeft(0);
-        onTimeout();
+        handleEvaluateAnswer(null, "timeout");
         return;
       }
 
